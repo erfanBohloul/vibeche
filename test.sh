@@ -7,4 +7,6 @@ osascript -l JavaScript -e '
   }
   load("js/books.js");
   load("tests/test_books.js");
+  load("js/storage.js");
+  load("tests/test_storage.js");
 ' 2>&1
