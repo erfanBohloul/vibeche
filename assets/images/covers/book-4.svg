@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 580" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#134e4a" />
+      <stop offset="100%" stop-color="#042f2e" />
+    </linearGradient>
+    <linearGradient id="spine-shadow" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.4" />
+      <stop offset="4%" stop-color="#ffffff" stop-opacity="0.15" />
+      <stop offset="7%" stop-color="#000000" stop-opacity="0.3" />
+      <stop offset="10%" stop-color="#000000" stop-opacity="0" />
+    </linearGradient>
+    <pattern id="pat-4" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="1.5" fill="#2dd4bf" fill-opacity="0.15" />
+    </pattern>
+  </defs>
+
+  <!-- Background Cover -->
+  <rect width="400" height="580" rx="12" fill="url(#bg-4)" />
+  <rect width="400" height="580" rx="12" fill="url(#pat-4)" />
+
+  <!-- Outer Border -->
+  <rect x="22" y="22" width="356" height="536" rx="8" fill="none" stroke="#2dd4bf" stroke-width="2" stroke-opacity="0.4" />
+  <rect x="28" y="28" width="344" height="524" rx="6" fill="none" stroke="#2dd4bf" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="4 3" />
+
+  <!-- Corner Ornaments -->
+  <circle cx="36" cy="36" r="4" fill="#2dd4bf" />
+  <circle cx="364" cy="36" r="4" fill="#2dd4bf" />
+  <circle cx="36" cy="544" r="4" fill="#2dd4bf" />
+  <circle cx="364" cy="544" r="4" fill="#2dd4bf" />
+
+  <!-- Category Badge -->
+  <rect x="110" y="55" width="180" height="30" rx="15" fill="#2dd4bf" fill-opacity="0.2" stroke="#2dd4bf" stroke-width="1" stroke-opacity="0.6"/>
+  <text x="200" y="75" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="13" font-weight="bold" fill="#2dd4bf" text-anchor="middle" direction="rtl">طنز و ادبیات اجتماعی</text>
+
+  <!-- Central Decorative Crest -->
+  <g transform="translate(200, 190)">
+    <circle cx="0" cy="0" r="55" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-opacity="0.4" />
+    <circle cx="0" cy="0" r="48" fill="none" stroke="#2dd4bf" stroke-width="1" stroke-dasharray="3 3" stroke-opacity="0.5" />
+    <path d="M 0 -35 L 25 -10 L 0 15 L -25 -10 Z" fill="none" stroke="#2dd4bf" stroke-width="2" />
+    <circle cx="0" cy="-10" r="6" fill="#2dd4bf" />
+    <path d="M -30 25 Q 0 45 30 25" fill="none" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" />
+  </g>
+
+  <!-- Book Title -->
+  <text x="200" y="325" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="34" font-weight="900" fill="#ffffff" text-anchor="middle" direction="rtl">
+    دایی‌جان ناپلئون
+  </text>
+
+  <!-- Motif / Subtitle -->
+  <text x="200" y="365" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="14" fill="#2dd4bf" text-anchor="middle" opacity="0.9" direction="rtl">
+    ماجراهای باغ پرماجرای خانوادگی
+  </text>
+
+  <!-- Decorative Divider -->
+  <line x1="120" y1="395" x2="280" y2="395" stroke="#2dd4bf" stroke-width="1" stroke-opacity="0.5" />
+  <circle cx="200" cy="395" r="3" fill="#2dd4bf" />
+
+  <!-- Author Name -->
+  <text x="200" y="445" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="18" font-weight="bold" fill="#f1f5f9" text-anchor="middle" direction="rtl">
+    ایرج پزشکزاد
+  </text>
+
+  <!-- Publisher / Emblem at bottom -->
+  <g transform="translate(200, 505)">
+    <rect x="-50" y="-12" width="100" height="24" rx="12" fill="#000000" fill-opacity="0.3" />
+    <text x="0" y="5" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#94a3b8" text-anchor="middle" direction="rtl">طاقچـه • نسخه اختصاصی</text>
+  </g>
+
+  <!-- Book Spine 3D Effect on the Right Edge (RTL Book) -->
+  <rect x="365" y="0" width="35" height="580" rx="0" fill="url(#spine-shadow)" />
+</svg>
