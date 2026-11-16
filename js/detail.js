@@ -238,6 +238,18 @@
 
     btnFavorite.addEventListener('click', () => {
       if (!root.VibecheStorage) return;
+
+      // Strict Auth Gate: Guest cannot favorite books
+      if (!root.VibecheStorage.isLoggedIn()) {
+        if (root.VibecheComponents) {
+          root.VibecheComponents.showToast('برای افزودن به علاقه‌مندی‌ها، لطفاً ابتدا وارد حساب کاربری خود شوید.', 'danger');
+        }
+        if (root.VibecheApp && root.VibecheApp.openAuthModal) {
+          root.VibecheApp.openAuthModal();
+        }
+        return;
+      }
+
       const res = root.VibecheStorage.toggleFavorite(book.id);
       updateFavoriteButton();
       if (root.VibecheComponents) {

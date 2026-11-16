@@ -1,14 +1,19 @@
 /**
- * vibeche - State & LocalStorage Manager
+ * vibeche - State & LocalStorage Manager (Account-Keyed Architecture)
  * Sharif University Web Programming - HW1 (Taghche)
  * 
- * Manages:
- * 1. User authentication state (mock login with 11-digit mobile starting with 09)
- * 2. Persian and Latin digit normalization
- * 3. Favorites list (persists across reloads, prevents duplicates)
- * 4. User Library (claimed/purchased books, duplicate prevention)
- * 5. Reader settings (font size: small/medium/large, theme: light/dark)
- * 6. Resilient error recovery for missing or corrupted localStorage
+ * Capabilities:
+ * 1. Account-Keyed Storage: Each user account is strictly keyed by their 11-digit mobile number.
+ *    - Logging out NEVER deletes a user's favorites or purchased books.
+ *    - Logging in with another account completely isolates user data.
+ *    - Logging back in restores all favorites and library books.
+ * 2. Strict Auth Gate: Only authenticated users can favorite or acquire books.
+ *    - Guest users cannot favorite books (returns empty array and requires login).
+ * 3. Persian and Latin digit normalization (۰۱۲۳۴۵۶۷۸۹ -> 0123456789).
+ * 4. 11-digit Iranian mobile validation starting with 09.
+ * 5. Strict duplicate prevention for acquisitions and favorites.
+ * 6. Resilient error recovery: Invalid or corrupted JSON resets safely without crashing.
+ * 7. Reader settings persistence (font size and theme).
  */
 
 (function () {
@@ -16,7 +21,7 @@
 
   const root = typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this);
 
-  // In-memory fallback if localStorage is unavailable (e.g. CLI test environment or private mode restrictions)
+  // In-memory fallback if localStorage is unavailable (CLI tests or private browsing)
   const memoryStorage = {};
   const storageAdapter = {
     getItem: function (key) {
@@ -25,7 +30,7 @@
           return localStorage.getItem(key);
         }
       } catch (e) {
-        // Fall through to memory storage
+        // Fall through to memory
       }
       return Object.prototype.hasOwnProperty.call(memoryStorage, key) ? memoryStorage[key] : null;
     },
@@ -36,7 +41,7 @@
           return;
         }
       } catch (e) {
-        // Fall through to memory storage
+        // Fall through to memory
       }
       memoryStorage[key] = String(value);
     },
@@ -47,9 +52,23 @@
           return;
         }
       } catch (e) {
-        // Fall through to memory storage
+        // Fall through to memory
       }
       delete memoryStorage[key];
+    },
+    getAllKeys: function () {
+      const keys = [];
+      try {
+        if (typeof localStorage !== 'undefined') {
+          for (let i = 0; i < localStorage.length; i++) {
+            keys.push(localStorage.key(i));
+          }
+          return keys;
+        }
+      } catch (e) {
+        // Fall through to memory
+      }
+      return Object.keys(memoryStorage);
     },
     clear: function () {
       try {
@@ -66,9 +85,8 @@
   };
 
   const STORAGE_KEYS = {
-    USER: 'vibeche_user',
-    FAVORITES: 'vibeche_favorites',
-    LIBRARY: 'vibeche_library',
+    CURRENT_PHONE: 'vibeche_current_phone',
+    ACCOUNT_PREFIX: 'vibeche_account_',
     READER_SETTINGS: 'vibeche_reader_settings'
   };
 
@@ -77,7 +95,7 @@
     theme: 'light'      // 'light' | 'dark'
   };
 
-  // Safe logger that works across browsers and headless JS engines (e.g. JXA where console.warn/error might be missing)
+  // Safe logger for browser and headless JXA environments
   const logWarn = (typeof console !== 'undefined' && typeof console.warn === 'function') ? console.warn.bind(console) : (typeof console !== 'undefined' && typeof console.log === 'function' ? console.log.bind(console) : function () {});
   const logError = (typeof console !== 'undefined' && typeof console.error === 'function') ? console.error.bind(console) : (typeof console !== 'undefined' && typeof console.log === 'function' ? console.log.bind(console) : function () {});
 
@@ -92,7 +110,6 @@
       }
       return JSON.parse(raw);
     } catch (err) {
-      // Data corrupted: silently recover by returning default and resetting key
       logWarn(`[VibecheStorage] Corrupted data for key "${key}". Resetting to default.`, err);
       safeSet(key, defaultValue);
       return defaultValue;
@@ -149,22 +166,52 @@
     };
   }
 
+  /**
+   * Internal helpers for account-keyed data management
+   */
+  function getAccount(phone) {
+    if (!phone) return null;
+    return safeGet(STORAGE_KEYS.ACCOUNT_PREFIX + phone, null);
+  }
+
+  function saveAccount(phone, accountData) {
+    if (!phone) return false;
+    return safeSet(STORAGE_KEYS.ACCOUNT_PREFIX + phone, accountData);
+  }
+
+  function getCurrentPhone() {
+    return safeGet(STORAGE_KEYS.CURRENT_PHONE, null);
+  }
+
   const VibecheStorage = {
-    // Digit and validation utilities
+    // Utilities
     normalizeDigits,
     validatePhone,
     validateDisplayName,
 
     // --- User / Authentication Management ---
     getUser: function () {
-      return safeGet(STORAGE_KEYS.USER, null);
+      const phone = getCurrentPhone();
+      if (!phone) return null;
+      const account = getAccount(phone);
+      if (!account) return null;
+      return {
+        displayName: account.displayName,
+        phone: account.phone,
+        isLoggedIn: true
+      };
     },
 
     isLoggedIn: function () {
-      const user = this.getUser();
-      return Boolean(user && user.isLoggedIn);
+      return Boolean(this.getUser());
     },
 
+    /**
+     * Account-keyed login:
+     * - Validates name and phone (supporting Persian & Latin digits)
+     * - Restores previous account if phone already exists
+     * - Sets active user session
+     */
     login: function (name, phone) {
       const nameVal = validateDisplayName(name);
       const phoneVal = validatePhone(phone);
@@ -177,26 +224,53 @@
         return { success: false, errors };
       }
 
-      const user = {
-        displayName: nameVal.trimmed,
-        phone: phoneVal.normalized,
-        isLoggedIn: true,
-        loginDate: new Date().toISOString()
-      };
+      const normalizedPhone = phoneVal.normalized;
+      let account = getAccount(normalizedPhone);
 
-      safeSet(STORAGE_KEYS.USER, user);
-      return { success: true, user };
+      if (!account) {
+        // Create new account
+        account = {
+          displayName: nameVal.trimmed,
+          phone: normalizedPhone,
+          favorites: [],
+          library: [],
+          createdAt: new Date().toISOString()
+        };
+      } else {
+        // Existing account: update display name if changed
+        account.displayName = nameVal.trimmed;
+      }
+
+      account.lastLoginAt = new Date().toISOString();
+
+      saveAccount(normalizedPhone, account);
+      safeSet(STORAGE_KEYS.CURRENT_PHONE, normalizedPhone);
+
+      return {
+        success: true,
+        user: {
+          displayName: account.displayName,
+          phone: account.phone,
+          isLoggedIn: true
+        }
+      };
     },
 
+    /**
+     * Logout: Ends the active session, but NEVER throws away the user's data.
+     */
     logout: function () {
-      storageAdapter.removeItem(STORAGE_KEYS.USER);
+      storageAdapter.removeItem(STORAGE_KEYS.CURRENT_PHONE);
       return true;
     },
 
-    // --- Favorites Management ---
+    // --- Favorites Management (Strictly Account-Bound to Logged-in User) ---
     getFavorites: function () {
-      const favs = safeGet(STORAGE_KEYS.FAVORITES, []);
-      return Array.isArray(favs) ? favs.map(Number).filter(n => !isNaN(n)) : [];
+      const phone = getCurrentPhone();
+      if (!phone) return []; // Unauthenticated users have no favorites
+      const account = getAccount(phone);
+      const favs = account && Array.isArray(account.favorites) ? account.favorites : [];
+      return favs.map(Number).filter(n => !isNaN(n));
     },
 
     isFavorite: function (bookId) {
@@ -206,27 +280,46 @@
     },
 
     addFavorite: function (bookId) {
+      const phone = getCurrentPhone();
+      if (!phone) return false; // Strictly requires login
       const numId = Number(bookId);
       if (isNaN(numId)) return false;
-      const favs = this.getFavorites();
-      if (!favs.includes(numId)) {
-        favs.push(numId);
-        safeSet(STORAGE_KEYS.FAVORITES, favs);
+
+      const account = getAccount(phone);
+      if (account) {
+        if (!Array.isArray(account.favorites)) account.favorites = [];
+        if (!account.favorites.includes(numId)) {
+          account.favorites.push(numId);
+          saveAccount(phone, account);
+        }
+        return true;
       }
-      return true;
+      return false;
     },
 
     removeFavorite: function (bookId) {
+      const phone = getCurrentPhone();
+      if (!phone) return false; // Strictly requires login
       const numId = Number(bookId);
       if (isNaN(numId)) return false;
-      const favs = this.getFavorites().filter(id => id !== numId);
-      safeSet(STORAGE_KEYS.FAVORITES, favs);
-      return true;
+
+      const account = getAccount(phone);
+      if (account && Array.isArray(account.favorites)) {
+        account.favorites = account.favorites.filter(id => Number(id) !== numId);
+        saveAccount(phone, account);
+        return true;
+      }
+      return false;
     },
 
     toggleFavorite: function (bookId) {
+      const phone = getCurrentPhone();
+      if (!phone) {
+        return { isFavorite: false, requireLogin: true };
+      }
       const numId = Number(bookId);
       if (isNaN(numId)) return { isFavorite: false };
+
       const isFav = this.isFavorite(numId);
       if (isFav) {
         this.removeFavorite(numId);
@@ -237,10 +330,13 @@
       }
     },
 
-    // --- Library Management (Acquired / Purchased Books) ---
+    // --- Library Management (Acquired / Purchased Books - Strictly Account-Bound) ---
     getLibrary: function () {
-      const lib = safeGet(STORAGE_KEYS.LIBRARY, []);
-      return Array.isArray(lib) ? lib.map(Number).filter(n => !isNaN(n)) : [];
+      const phone = getCurrentPhone();
+      if (!phone) return [];
+      const account = getAccount(phone);
+      const lib = account && Array.isArray(account.library) ? account.library : [];
+      return lib.map(Number).filter(n => !isNaN(n));
     },
 
     isInLibrary: function (bookId) {
@@ -250,15 +346,23 @@
     },
 
     addToLibrary: function (bookId) {
+      const phone = getCurrentPhone();
+      if (!phone) return false; // Acquisition strictly requires logged-in user
+
       const numId = Number(bookId);
       if (isNaN(numId)) return false;
-      const lib = this.getLibrary();
-      // Enforce duplicate prevention rule from spec
-      if (!lib.includes(numId)) {
-        lib.push(numId);
-        safeSet(STORAGE_KEYS.LIBRARY, lib);
+
+      const account = getAccount(phone);
+      if (account) {
+        if (!Array.isArray(account.library)) account.library = [];
+        // Strict duplicate prevention rule from spec
+        if (!account.library.includes(numId)) {
+          account.library.push(numId);
+          saveAccount(phone, account);
+        }
+        return true;
       }
-      return true;
+      return false;
     },
 
     // --- Reader Settings Management ---
@@ -282,14 +386,17 @@
 
     // --- System / Reset Utility ---
     clearAll: function () {
-      storageAdapter.removeItem(STORAGE_KEYS.USER);
-      storageAdapter.removeItem(STORAGE_KEYS.FAVORITES);
-      storageAdapter.removeItem(STORAGE_KEYS.LIBRARY);
-      storageAdapter.removeItem(STORAGE_KEYS.READER_SETTINGS);
+      const keys = storageAdapter.getAllKeys();
+      keys.forEach(k => {
+        if (k && k.startsWith('vibeche_')) {
+          storageAdapter.removeItem(k);
+        }
+      });
+      storageAdapter.clear();
       return true;
     },
 
-    // Expose internal adapter for testing corruption injection
+    // Expose internal adapter for testing
     _storageAdapter: storageAdapter
   };
 

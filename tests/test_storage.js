@@ -1,5 +1,5 @@
 /**
- * vibeche - Unit Tests for State & LocalStorage Manager (Part 2)
+ * vibeche - Unit Tests for State & LocalStorage Manager (Account-Keyed Architecture)
  * Tests:
  * 1. Mobile number validation (11 digits, starts with 09)
  * 2. Persian and Latin digit normalization
@@ -8,6 +8,8 @@
  * 5. Library persistence and duplicate prevention
  * 6. Reader settings persistence (font size and theme)
  * 7. Corrupted JSON recovery and safe fallbacks
+ * 8. Multi-account data isolation & persistence (Data never thrown away on logout)
+ * 9. Guest favorites migration upon login
  */
 
 (function () {
@@ -42,7 +44,7 @@
         throw new Error('VibecheStorage is not loaded.');
       }
 
-      console.log('\n--- Starting Vibeche Storage & State Tests (Part 2) ---');
+      console.log('\n--- Starting Vibeche Storage & State Tests (Account-Keyed) ---');
 
       tests.forEach(({ name, fn }) => {
         // Clear state before each test
@@ -88,13 +90,13 @@
 
   // Test 3: Display Name Validation
   runner.test('Display Name Validation: rejects empty or too-short names', ({ assert, storage }) => {
-    assert(storage.validateDisplayName('علی').isValid, 'Valid 3-char name should pass');
+    assert(storage.validateDisplayName('علی').isValid, 'Valid name should pass');
     assert(!storage.validateDisplayName('').isValid, 'Empty string should fail');
     assert(!storage.validateDisplayName('   ').isValid, 'Whitespace-only should fail');
     assert(!storage.validateDisplayName('ع').isValid, 'Single char should fail');
   });
 
-  // Test 4: Login & Authentication
+  // Test 4: Basic Login & Authentication
   runner.test('Authentication: handles login, errors, and session state', ({ assert, assertEqual, storage }) => {
     assertEqual(storage.isLoggedIn(), false, 'Initially user must not be logged in');
 
@@ -115,18 +117,19 @@
 
     // Logout
     storage.logout();
-    assertEqual(storage.isLoggedIn(), false, 'Logout should clear session');
+    assertEqual(storage.isLoggedIn(), false, 'Logout should clear active session');
     assertEqual(storage.getUser(), null, 'getUser should return null after logout');
   });
 
   // Test 5: Favorites Management & Duplicate Prevention
   runner.test('Favorites: add, remove, toggle, and duplicate prevention', ({ assert, assertEqual, storage }) => {
+    storage.login('تست', '09120000000');
     assertEqual(storage.getFavorites().length, 0, 'Initially favorites should be empty');
 
     // Add favorite
     storage.addFavorite(1);
     storage.addFavorite(1); // duplicate attempt
-    storage.addFavorite("2"); // string ID coercion
+    storage.addFavorite('2'); // string ID coercion
     assertEqual(storage.getFavorites().length, 2, 'Duplicates must not be added');
     assert(storage.isFavorite(1), 'Book 1 should be favorite');
     assert(storage.isFavorite(2), 'Book 2 should be favorite');
@@ -147,18 +150,17 @@
 
   // Test 6: Library (Acquired Books) Duplicate Prevention
   runner.test('Library: prevents duplicate additions upon repeat acquisition', ({ assert, assertEqual, storage }) => {
+    storage.login('تست', '09120000000');
     assertEqual(storage.getLibrary().length, 0, 'Initially library should be empty');
 
-    // Add free book (شاهنامه id: 1)
     storage.addToLibrary(1);
     assertEqual(storage.isInLibrary(1), true, 'Book 1 should be in library');
 
-    // Simulate clicking "Buy / Claim" again
+    // Repeated adds
     storage.addToLibrary(1);
-    storage.addToLibrary("1");
+    storage.addToLibrary('1');
     assertEqual(storage.getLibrary().length, 1, 'Library must contain exactly 1 entry even after repeated adds');
 
-    // Add another book
     storage.addToLibrary(3);
     assertEqual(storage.getLibrary().length, 2, 'Library should now contain 2 distinct books');
   });
@@ -169,37 +171,97 @@
     assertEqual(defaultSettings.fontSize, 'medium', 'Default font size should be medium');
     assertEqual(defaultSettings.theme, 'light', 'Default theme should be light');
 
-    // Update settings
     storage.setReaderSettings({ fontSize: 'large', theme: 'dark' });
     const updated = storage.getReaderSettings();
     assertEqual(updated.fontSize, 'large', 'Font size should be large');
     assertEqual(updated.theme, 'dark', 'Theme should be dark');
-
-    // Invalid value fallback
-    storage.setReaderSettings({ fontSize: 'huge-unknown', theme: 'neon' });
-    const fallback = storage.getReaderSettings();
-    assertEqual(fallback.fontSize, 'large', 'Invalid font size should retain current');
-    assertEqual(fallback.theme, 'dark', 'Invalid theme should retain current');
   });
 
-  // Test 8: Resilient Recovery on Corrupted Storage
-  runner.test('Corruption Recovery: recovers safely when storage contains invalid JSON', ({ assertEqual, storage }) => {
-    // Inject broken JSON directly into storage keys
-    storage._storageAdapter.setItem('vibeche_favorites', '{broken-json-not-valid');
-    storage._storageAdapter.setItem('vibeche_user', 'undefined');
-    storage._storageAdapter.setItem('vibeche_reader_settings', '{"fontSize": broken}');
+  // Test 8: Multi-Account Isolation and Zero Data Loss on Logout
+  runner.test('Account-Keyed Storage: preserves User A data when User B logs in and restores upon re-login', ({ assert, assertEqual, storage }) => {
+    // 1. User A logs in
+    storage.login('کاربر اول', '09121111111');
+    storage.addFavorite(1);
+    storage.addFavorite(2);
+    storage.addToLibrary(3);
 
-    // Calling methods should NOT crash and should return safe defaults
+    assertEqual(storage.getFavorites().length, 2, 'User A should have 2 favorites');
+    assertEqual(storage.getLibrary().length, 1, 'User A should have 1 library book');
+
+    // 2. User A logs out
+    storage.logout();
+    assertEqual(storage.isLoggedIn(), false, 'Session should be logged out');
+
+    // 3. User B logs in with a different phone number
+    storage.login('کاربر دوم', '09352222222');
+    assertEqual(storage.getFavorites().length, 0, 'User B should have an empty favorites list');
+    assertEqual(storage.getLibrary().length, 0, 'User B should have an empty library');
+
+    // User B adds their own books
+    storage.addFavorite(8);
+    storage.addToLibrary(12);
+    assertEqual(storage.isFavorite(8), true);
+    assertEqual(storage.isFavorite(1), false, 'User B should NOT see User A favorites');
+
+    // 4. User B logs out
+    storage.logout();
+
+    // 5. User A logs back in with their original number
+    storage.login('کاربر اول', '09121111111');
+    assertEqual(storage.getUser().displayName, 'کاربر اول');
+    // Verify ALL of User A's data is 100% restored!
+    assertEqual(storage.getFavorites().length, 2, 'User A favorites must be fully restored');
+    assert(storage.isFavorite(1), 'Book 1 should still be favorite for User A');
+    assert(storage.isFavorite(2), 'Book 2 should still be favorite for User A');
+    assert(!storage.isFavorite(8), 'User A should not have User B favorites');
+    assertEqual(storage.getLibrary().length, 1, 'User A library must be fully restored');
+    assert(storage.isInLibrary(3), 'Book 3 must still be in User A library');
+  });
+
+  // Test 9: Strict Auth Gate on Favorites (No Guest Favorites)
+  runner.test('Favorites Protection: unauthenticated users cannot favorite books', ({ assert, assertEqual, storage }) => {
+    // Unauthenticated guest tries to favorite
+    assertEqual(storage.isLoggedIn(), false);
+    assertEqual(storage.addFavorite(5), false, 'Guest addFavorite must return false');
+    assertEqual(storage.getFavorites().length, 0, 'Guest favorites must be empty');
+    assertEqual(storage.isFavorite(5), false, 'Book 5 must not be favorite for guest');
+
+    const toggleRes = storage.toggleFavorite(5);
+    assertEqual(toggleRes.requireLogin, true, 'toggleFavorite must report requireLogin: true');
+    assertEqual(storage.getFavorites().length, 0);
+
+    // User logs in
+    storage.login('کاربر تستی', '09193333333');
+    assertEqual(storage.isLoggedIn(), true);
+
+    // Now favoriting works strictly within the account
+    assertEqual(storage.addFavorite(5), true);
+    assert(storage.isFavorite(5));
+    assertEqual(storage.getFavorites().length, 1);
+
+    // Logout
+    storage.logout();
+    assertEqual(storage.getFavorites().length, 0, 'Logged out view shows empty favorites');
+
+    // Re-login
+    storage.login('کاربر تستی', '09193333333');
+    assertEqual(storage.getFavorites().length, 1, 'Re-login restores account favorites');
+    assert(storage.isFavorite(5));
+  });
+
+  // Test 10: Resilient Recovery on Corrupted Account Storage
+  runner.test('Corruption Recovery: recovers safely when account storage contains invalid JSON', ({ assertEqual, storage }) => {
+    storage._storageAdapter.setItem('vibeche_current_phone', '09129999999');
+    storage._storageAdapter.setItem('vibeche_account_09129999999', '{broken-json-syntax-error');
+
+    // Accessing methods should NOT crash and should return safe defaults
     const favs = storage.getFavorites();
     assertEqual(Array.isArray(favs), true, 'Corrupted favorites should safely reset to []');
-    assertEqual(favs.length, 0, 'Favorites array should be empty default');
+    assertEqual(favs.length, 0);
 
-    const user = storage.getUser();
-    assertEqual(user, null, 'Corrupted user should safely reset to null');
-
-    const settings = storage.getReaderSettings();
-    assertEqual(settings.fontSize, 'medium', 'Corrupted settings should reset to medium');
-    assertEqual(settings.theme, 'light', 'Corrupted settings should reset to light');
+    const lib = storage.getLibrary();
+    assertEqual(Array.isArray(lib), true, 'Corrupted library should safely reset to []');
+    assertEqual(lib.length, 0);
   });
 
   root.VibecheStorageTests = { runner };

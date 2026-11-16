@@ -116,6 +116,8 @@
   // Test 6: Acquisition logic in storage
   runner.test('Acquisition Simulation: claim or buy adds to library and prevents duplicates', ({ assert, assertEqual, storage }) => {
     storage.clearAll();
+    // In account-keyed architecture, acquisition requires an active user session
+    storage.login('کاربر تستی', '09123456789');
     assertEqual(storage.isInLibrary(3), false, 'Initially book 3 should not be in library');
 
     // Add book
