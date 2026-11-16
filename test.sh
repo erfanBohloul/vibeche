@@ -9,4 +9,8 @@ osascript -l JavaScript -e '
   load("tests/test_books.js");
   load("js/storage.js");
   load("tests/test_storage.js");
+  load("js/catalog.js");
+  load("tests/test_catalog.js");
+  load("js/detail.js");
+  load("tests/test_detail.js");
 ' 2>&1
