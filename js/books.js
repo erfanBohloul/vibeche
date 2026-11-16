@@ -233,7 +233,7 @@
       category: 'طنز و جامعه',
       categoryId: 'satire-social',
       cover: 'assets/images/covers/book-10.svg',
-      price: 38000,
+      price: 0, // Free book #4 (enables 4-book free shelf on homepage)
       rating: 4.4,
       ratingCount: 1480,
       publisher: 'انتشارات فردوس',
