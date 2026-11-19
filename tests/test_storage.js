@@ -203,6 +203,30 @@
     assertEqual(storage.getLibrary().length, 2, 'Library should now contain 2 distinct books');
   });
 
+  // Test 6b: Deduplicated Unique Books Count (Option 1)
+  runner.test('Deduplicated Count: getUniqueBooksCount does not double-count a book present in both library and favorites', ({ assertEqual, storage }) => {
+    storage.login('تست شمارش', '09120000002');
+    assertEqual(storage.getUniqueBooksCount(), 0, 'Initially 0 unique books');
+
+    // Add Book 1 to favorites
+    storage.addFavorite(1);
+    assertEqual(storage.getUniqueBooksCount(), 1, '1 book favorited -> count should be 1');
+
+    // Acquire Book 1 (same book now in both favorites and library)
+    storage.addToLibrary(1);
+    assertEqual(storage.getLibrary().length, 1);
+    assertEqual(storage.getFavorites().length, 1);
+    assertEqual(storage.getUniqueBooksCount(), 1, 'Book 1 in both shelves must count as 1, not 2');
+
+    // Add Book 2 to library
+    storage.addToLibrary(2);
+    assertEqual(storage.getUniqueBooksCount(), 2, '2 distinct books across shelves -> count should be 2');
+
+    // Add Book 3 to favorites
+    storage.addFavorite(3);
+    assertEqual(storage.getUniqueBooksCount(), 3, '3 distinct books -> count should be 3');
+  });
+
   // Test 7: Reader Settings Persistence
   runner.test('Reader Settings: saves and loads font size and theme preferences', ({ assertEqual, storage }) => {
     const defaultSettings = storage.getReaderSettings();

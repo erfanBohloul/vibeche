@@ -13,4 +13,6 @@ osascript -l JavaScript -e '
   load("tests/test_catalog.js");
   load("js/detail.js");
   load("tests/test_detail.js");
+  load("js/library.js");
+  load("tests/test_library.js");
 ' 2>&1

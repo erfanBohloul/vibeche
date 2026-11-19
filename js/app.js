@@ -232,9 +232,10 @@
       const badge = document.getElementById('library-count-badge');
       if (!badge) return;
 
-      const libCount = root.VibecheStorage.getLibrary().length;
-      const favCount = root.VibecheStorage.getFavorites().length;
-      const total = libCount + favCount;
+      // Option 1: Deduplicated unique book count (prevents double-counting books in both shelves)
+      const total = typeof root.VibecheStorage.getUniqueBooksCount === 'function'
+        ? root.VibecheStorage.getUniqueBooksCount()
+        : new Set([...root.VibecheStorage.getLibrary(), ...root.VibecheStorage.getFavorites()]).size;
 
       if (total > 0) {
         badge.style.display = 'inline-flex';
@@ -310,8 +311,12 @@
           this.renderCatalogPlaceholder(main, params);
         }
       } else if (page === 'library') {
-        // Library View (Prepared for Step 6)
-        this.renderLibraryPlaceholder(main);
+        // Library View (Step 6)
+        if (root.VibecheLibrary && root.VibecheLibrary.renderLibrary) {
+          root.VibecheLibrary.renderLibrary(main, params);
+        } else {
+          this.renderLibraryPlaceholder(main);
+        }
       } else {
         // Default: Homepage (Step 3)
         this.renderHomePage(main);

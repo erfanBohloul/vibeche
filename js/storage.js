@@ -416,6 +416,19 @@
       return false;
     },
 
+    /**
+     * Deduplicated unique book count across both library and favorites.
+     * Prevents double-counting a book if it has been both favorited and acquired.
+     */
+    getUniqueBooksCount: function () {
+      const phone = getCurrentPhone();
+      if (!phone) return 0;
+      const lib = this.getLibrary();
+      const favs = this.getFavorites();
+      const uniqueIds = new Set([...lib, ...favs]);
+      return uniqueIds.size;
+    },
+
     // --- Reader Settings Management ---
     getReaderSettings: function () {
       const settings = safeGet(STORAGE_KEYS.READER_SETTINGS, DEFAULT_READER_SETTINGS);
