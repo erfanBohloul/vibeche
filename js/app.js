@@ -44,9 +44,25 @@
         this.updateHeaderBadges();
       });
 
+      window.addEventListener('vibeche:libraryChange', () => {
+        this.updateHeaderBadges();
+      });
+
+      window.addEventListener('vibeche:authChange', () => {
+        this.updateUserArea();
+        this.updateHeaderBadges();
+        this.route();
+      });
+
       window.addEventListener('popstate', () => {
         this.route();
       });
+    },
+
+    openAuthModal: function (options) {
+      if (root.VibecheAuth && root.VibecheAuth.openAuthModal) {
+        root.VibecheAuth.openAuthModal(options);
+      }
     },
 
     /**
@@ -182,6 +198,9 @@
             this.updateUserArea();
             if (root.VibecheComponents) {
               root.VibecheComponents.showToast('با موفقیت از حساب کاربری خارج شدید.', 'info');
+            }
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('vibeche:authChange', { detail: { user: null } }));
             }
           });
         }

@@ -1891,3 +1891,124 @@ img, svg {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================================
+   Mock Login Modal & Form Validation (Step 6)
+   ========================================================================== */
+
+.auth-modal-dialog {
+  max-width: 440px;
+}
+
+.auth-modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-brand-badge {
+  background-color: var(--primary-surface);
+  color: var(--primary);
+  border: 1px solid rgba(0, 150, 136, 0.3);
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.auth-context-notice {
+  background-color: var(--primary-surface);
+  border-right: 3px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary-hover);
+  margin-bottom: 14px;
+}
+
+.auth-lead-text {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.15);
+}
+
+.form-control.has-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.inline-error-msg {
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.form-hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.btn-submit-auth {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.auth-modal-footer {
+  padding: 12px 20px;
+  background-color: var(--surface-alt);
+  border-top: 1px solid var(--border-light);
+  text-align: center;
+}
+
+.auth-footer-notice {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}

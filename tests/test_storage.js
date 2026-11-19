@@ -121,6 +121,44 @@
     assertEqual(storage.getUser(), null, 'getUser should return null after logout');
   });
 
+  // Test 4b: Name Integrity & Authenticated Profile Updates
+  runner.test('Account Integrity: prevents altering name on login, allows update only when authenticated', ({ assert, assertEqual, storage }) => {
+    // 1. Initial registration
+    const regRes = storage.login('سارا احمدی', '09121234567');
+    assertEqual(regRes.success, true, 'Initial registration must succeed');
+    storage.logout();
+
+    // 2. Attempt login with same phone but DIFFERENT name
+    const mismatchRes = storage.login('فرد دیگر', '09121234567');
+    assertEqual(mismatchRes.success, false, 'Login with mismatched name should fail');
+    assert(typeof mismatchRes.errors.name === 'string', 'Name error must be returned on mismatch');
+    assert(!mismatchRes.errors.name.includes('سارا احمدی'), 'Privacy check: error message must NOT disclose the registered owner name');
+    assertEqual(storage.isLoggedIn(), false, 'User must not be logged in after failed mismatch');
+
+    // 3. Login with matching name succeeds
+    const matchRes = storage.login('سارا احمدی', '09121234567');
+    assertEqual(matchRes.success, true, 'Login with correct name must succeed');
+    assertEqual(storage.isLoggedIn(), true);
+
+    // 4. Unauthenticated profile update fails
+    storage.logout();
+    const unauthUpdate = storage.updateProfile({ displayName: 'سارا رضوی' });
+    assertEqual(unauthUpdate.success, false, 'Unauthenticated profile update must be rejected');
+
+    // 5. Authenticated profile update succeeds
+    storage.login('سارا احمدی', '09121234567');
+    const authUpdate = storage.updateProfile({ displayName: 'سارا رضوی' });
+    assertEqual(authUpdate.success, true, 'Authenticated profile update must succeed');
+    assertEqual(storage.getUser().displayName, 'سارا رضوی');
+
+    // 6. Logging in again now requires the updated name
+    storage.logout();
+    const oldNameLogin = storage.login('سارا احمدی', '09121234567');
+    assertEqual(oldNameLogin.success, false, 'Login with old name must now fail');
+    const newNameLogin = storage.login('سارا رضوی', '09121234567');
+    assertEqual(newNameLogin.success, true, 'Login with updated name must succeed');
+  });
+
   // Test 5: Favorites Management & Duplicate Prevention
   runner.test('Favorites: add, remove, toggle, and duplicate prevention', ({ assert, assertEqual, storage }) => {
     storage.login('تست', '09120000000');

@@ -209,7 +209,9 @@
     /**
      * Account-keyed login:
      * - Validates name and phone (supporting Persian & Latin digits)
-     * - Restores previous account if phone already exists
+     * - If new user: registers account with the provided name
+     * - If existing user: enforces that the entered name matches the registered name
+     *   (prevents unauthenticated username tampering via login form)
      * - Sets active user session
      */
     login: function (name, phone) {
@@ -237,8 +239,15 @@
           createdAt: new Date().toISOString()
         };
       } else {
-        // Existing account: update display name if changed
-        account.displayName = nameVal.trimmed;
+        // Existing account: verify display name matches registered name
+        if (account.displayName.trim() !== nameVal.trimmed) {
+          return {
+            success: false,
+            errors: {
+              name: 'نام نمایشی واردشده با اطلاعات ثبت‌شده برای این شماره موبایل مطابقت ندارد.'
+            }
+          };
+        }
       }
 
       account.lastLoginAt = new Date().toISOString();
@@ -254,6 +263,48 @@
           isLoggedIn: true
         }
       };
+    },
+
+    /**
+     * Checks if an account exists for the given phone number
+     */
+    hasAccount: function (phone) {
+      const phoneVal = validatePhone(phone);
+      if (!phoneVal.isValid) return false;
+      return Boolean(getAccount(phoneVal.normalized));
+    },
+
+    /**
+     * Profile Update: Only an already authenticated user can modify their information.
+     */
+    updateProfile: function (data) {
+      const phone = getCurrentPhone();
+      if (!phone) {
+        return { success: false, error: 'برای تغییر مشخصات کاربری ابتدا باید وارد شوید.' };
+      }
+      const account = getAccount(phone);
+      if (!account) {
+        return { success: false, error: 'حساب کاربری یافت نشد.' };
+      }
+
+      if (data && typeof data.displayName === 'string') {
+        const nameVal = validateDisplayName(data.displayName);
+        if (!nameVal.isValid) {
+          return { success: false, errors: { name: nameVal.error } };
+        }
+        account.displayName = nameVal.trimmed;
+        account.updatedAt = new Date().toISOString();
+        saveAccount(phone, account);
+        return {
+          success: true,
+          user: {
+            displayName: account.displayName,
+            phone: account.phone,
+            isLoggedIn: true
+          }
+        };
+      }
+      return { success: false, error: 'اطلاعات معتبری برای ویرایش ارائه نشده است.' };
     },
 
     /**
