@@ -508,7 +508,7 @@
 
     const desc = document.createElement('p');
     desc.className = 'not-found-desc';
-    desc.textContent = `متاسفانه کتابی با شناسه «${invalidId}» در فروشگاه طاقچه پیدا نشد. ممکن است شناسه نامعتبر باشد یا این اثر از فهرست برداشته شده باشد.`;
+    desc.textContent = `متاسفانه کتابی با شناسه «${invalidId}» در فروشگاه وایبچه پیدا نشد. ممکن است شناسه نامعتبر باشد یا این اثر از فهرست برداشته شده باشد.`;
 
     const btnReturn = document.createElement('a');
     btnReturn.href = '?page=catalog';

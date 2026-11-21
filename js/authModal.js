@@ -41,7 +41,7 @@
     dialog.innerHTML = `
       <div class="modal-header">
         <div class="auth-modal-title-wrap">
-          <div class="auth-brand-badge">طاقچـه</div>
+          <div class="auth-brand-badge">وایبچـه</div>
           <h3 id="auth-modal-title" class="modal-title">ورود یا ثبت‌نام</h3>
         </div>
         <button type="button" class="btn-modal-close" id="btn-close-auth-modal" aria-label="بستن">✕</button>

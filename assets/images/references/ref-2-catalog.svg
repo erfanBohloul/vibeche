@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <filter id="shadow2" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <!-- Browser Window Frame -->
+  <rect x="0" y="0" width="800" height="500" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+  
+  <!-- Browser Header Bar -->
+  <rect x="0" y="0" width="800" height="40" rx="10" fill="#e2e8f0"/>
+  <circle cx="25" cy="20" r="6" fill="#ef4444"/>
+  <circle cx="45" cy="20" r="6" fill="#f59e0b"/>
+  <circle cx="65" cy="20" r="6" fill="#10b981"/>
+  <rect x="150" y="8" width="500" height="24" rx="12" fill="#ffffff"/>
+  <text x="400" y="24" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">https://taaghche.com/filter (مرجع ۲: فهرست کتاب‌ها و جستجو)</text>
+
+  <!-- Taaghche Navbar -->
+  <rect x="20" y="55" width="760" height="50" rx="8" fill="#ffffff" filter="url(#shadow2)"/>
+  <rect x="710" y="65" width="50" height="28" rx="6" fill="#00aa88"/>
+  <text x="735" y="83" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">طاقچه</text>
+  <rect x="340" y="65" width="340" height="28" rx="14" fill="#f1f5f9"/>
+  <text x="640" y="83" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#0f172a" text-anchor="end">جستجو در عنوان کتاب و نویسنده...</text>
+
+  <!-- Filter Sidebar (Right Side in RTL) -->
+  <g transform="translate(560, 120)">
+    <rect x="0" y="0" width="220" height="360" rx="8" fill="#ffffff" filter="url(#shadow2)"/>
+    <text x="200" y="30" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="end">فیلترهای پیشرفته</text>
+    
+    <!-- Free Toggle -->
+    <rect x="15" y="45" width="190" height="36" rx="6" fill="#f8fafc" stroke="#e2e8f0"/>
+    <text x="185" y="68" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#334155" text-anchor="end">فقط کتاب‌های رایگان</text>
+    <rect x="30" y="53" width="34" height="18" rx="9" fill="#00aa88"/>
+    <circle cx="53" cy="62" r="7" fill="#ffffff"/>
+
+    <!-- Categories List -->
+    <text x="200" y="110" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="12" font-weight="bold" fill="#475569" text-anchor="end">دسته‌بندی موضوعی</text>
+    <circle cx="190" cy="132" r="6" fill="#00aa88"/>
+    <text x="175" y="136" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#0f172a" text-anchor="end">همه موضوعات</text>
+    <circle cx="190" cy="160" r="5" fill="#e2e8f0"/>
+    <text x="175" y="164" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="end">شعر و ادبیات کهن</text>
+    <circle cx="190" cy="188" r="5" fill="#e2e8f0"/>
+    <text x="175" y="192" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="end">داستان و رمان ایرانی</text>
+    <circle cx="190" cy="216" r="5" fill="#e2e8f0"/>
+    <text x="175" y="220" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="end">طنز و جامعه</text>
+    <circle cx="190" cy="244" r="5" fill="#e2e8f0"/>
+    <text x="175" y="248" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="end">کودک و نوجوان</text>
+
+    <!-- Price Range Slider Mock -->
+    <text x="200" y="285" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="12" font-weight="bold" fill="#475569" text-anchor="end">محدوده قیمت (تومان)</text>
+    <rect x="20" y="300" width="180" height="6" rx="3" fill="#e2e8f0"/>
+    <rect x="50" y="300" width="120" height="6" rx="3" fill="#00aa88"/>
+    <circle cx="50" cy="303" r="8" fill="#ffffff" stroke="#00aa88" stroke-width="2"/>
+    <circle cx="170" cy="303" r="8" fill="#ffffff" stroke="#00aa88" stroke-width="2"/>
+  </g>
+
+  <!-- Books Grid & Top Sort Bar (Left Side in RTL) -->
+  <g transform="translate(20, 120)">
+    <!-- Sort Header -->
+    <rect x="0" y="0" width="525" height="42" rx="8" fill="#ffffff" filter="url(#shadow2)"/>
+    <text x="505" y="26" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="12" fill="#64748b" text-anchor="end">مرتب‌سازی:</text>
+    <rect x="360" y="7" width="85" height="28" rx="14" fill="#00aa88"/>
+    <text x="402" y="25" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">جدیدترین‌ها</text>
+    <rect x="260" y="7" width="90" height="28" rx="14" fill="#f1f5f9"/>
+    <text x="305" y="25" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">محبوب‌ترین‌ها</text>
+    <rect x="155" y="7" width="95" height="28" rx="14" fill="#f1f5f9"/>
+    <text x="202" y="25" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">ارزان‌ترین‌ها</text>
+    <text x="25" y="26" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" font-weight="bold" fill="#00aa88" text-anchor="start">۱۲ عنوان کتاب</text>
+
+    <!-- Book Grid (3 rows x 2 columns mock) -->
+    <g transform="translate(0, 55)">
+      <!-- Book 1 -->
+      <rect x="270" y="0" width="255" height="140" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+      <rect x="420" y="12" width="85" height="116" rx="4" fill="#0f766e"/>
+      <text x="400" y="35" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="end">شاهنامه فردوسی</text>
+      <text x="400" y="55" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="end">ابوالقاسم فردوسی</text>
+      <rect x="310" y="105" width="90" height="20" rx="10" fill="#10b981" fill-opacity="0.2"/>
+      <text x="355" y="119" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="10" font-weight="bold" fill="#059669" text-anchor="middle">رایگان</text>
+
+      <!-- Book 2 -->
+      <rect x="0" y="0" width="255" height="140" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+      <rect x="150" y="12" width="85" height="116" rx="4" fill="#1e3a8a"/>
+      <text x="130" y="35" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="end">بوف کور</text>
+      <text x="130" y="55" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="end">صادق هدایت</text>
+      <text x="130" y="120" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="12" font-weight="bold" fill="#00aa88" text-anchor="end">۴۵٬۰۰۰ تومان</text>
+
+      <!-- Book 3 -->
+      <rect x="270" y="155" width="255" height="140" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+      <rect x="420" y="167" width="85" height="116" rx="4" fill="#7c2d12"/>
+      <text x="400" y="190" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="end">کلیدر (جلد اول)</text>
+      <text x="400" y="210" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="end">محمود دولت‌آبادی</text>
+      <text x="400" y="275" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="12" font-weight="bold" fill="#00aa88" text-anchor="end">۱۲۰٬۰۰۰ تومان</text>
+
+      <!-- Book 4 -->
+      <rect x="0" y="155" width="255" height="140" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+      <rect x="150" y="167" width="85" height="116" rx="4" fill="#047857"/>
+      <text x="130" y="190" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="13" font-weight="bold" fill="#0f172a" text-anchor="end">ماهی سیاه کوچولو</text>
+      <text x="130" y="210" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="11" fill="#64748b" text-anchor="end">صمد بهرنگی</text>
+      <rect x="40" y="260" width="90" height="20" rx="10" fill="#10b981" fill-opacity="0.2"/>
+      <text x="85" y="274" font-family="'Vazirmatn', Tahoma, sans-serif" font-size="10" font-weight="bold" fill="#059669" text-anchor="middle">رایگان</text>
+    </g>
+  </g>
+</svg>

@@ -18,7 +18,7 @@
     {
       id: 2,
       image: 'assets/images/banners/banner-2.svg',
-      title: 'کتاب‌های کاملاً رایگان طاقچه برای همه',
+      title: 'کتاب‌های کاملاً رایگان وایبچه برای همه',
       link: '?page=catalog&free=true'
     },
     {
@@ -40,6 +40,7 @@
       }
       this.initHeader();
       this.initNavigation();
+      this.initFooter();
       this.route();
 
       // Listen to external favorite and storage change events
@@ -203,6 +204,29 @@
       });
     },
 
+    initFooter: function () {
+      const resetBtn = document.getElementById('btn-reset-storage');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          if (confirm('آیا مطمئن هستید که می‌خواهید تمام داده‌های ذخیره‌شده (حساب‌ها، کتابخانه و تنظیمات) را پاک کنید؟')) {
+            if (root.VibecheStorage && root.VibecheStorage.clearAll) {
+              root.VibecheStorage.clearAll();
+            } else if (typeof localStorage !== 'undefined') {
+              localStorage.clear();
+            }
+            if (root.VibecheComponents) {
+              root.VibecheComponents.showToast('داده‌های محلی با موفقیت بازنشانی شدند.', 'info');
+            }
+            setTimeout(() => {
+              if (typeof window !== 'undefined') {
+                window.location.href = window.location.pathname;
+              }
+            }, 500);
+          }
+        });
+      }
+    },
+
     navigate: function (queryString) {
       if (typeof window === 'undefined') return;
       window.history.pushState({}, '', queryString);
@@ -295,7 +319,7 @@
       const featuredBooks = root.VibecheData.getFeaturedBooks();
       container.appendChild(root.VibecheComponents.createBookShelf({
         id: 'featured',
-        title: 'پیشنهادهای ویژه طاقچه',
+        title: 'پیشنهادهای ویژه وایبچه',
         subtitle: 'منتخب شاهکارهای ادبیات و پرفروش‌ترین‌ها',
         books: featuredBooks,
         viewAllUrl: '?page=catalog&featured=true'

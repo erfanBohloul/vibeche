@@ -105,7 +105,7 @@
         </p>
         <div class="library-locked-actions">
           <button type="button" class="action-btn btn-auth btn-library-login" id="btn-library-gate-login">
-            ورود یا ثبت‌نام در طاقچه
+            ورود یا ثبت‌نام در وایبچه
           </button>
           <a href="?page=catalog" class="action-btn btn-library-browse">
             مرور کاتالوگ کتاب‌ها
@@ -309,11 +309,11 @@
             <div class="empty-icon-wrap" aria-hidden="true">${ICONS.bookOpen}</div>
             <h3 class="empty-box-title">هنوز کتابی در قفسه کتاب‌های شما قرار نگرفته است</h3>
             <p class="empty-box-desc">
-              شما می‌توانید از بین صدها کتاب رایگان و پرفروش طاقچه، کتاب‌های دلخواهتان را دریافت کرده و در این بخش به آنها دسترسی داشته باشید.
+              شما می‌توانید از بین صدها کتاب رایگان و پرفروش وایبچه، کتاب‌های دلخواهتان را دریافت کرده و در این بخش به آنها دسترسی داشته باشید.
             </p>
             <div class="empty-box-actions">
               <a href="?page=catalog&free=true" class="action-btn btn-auth">
-                مشاهده کتاب‌های رایگان طاقچه
+                مشاهده کتاب‌های رایگان وایبچه
               </a>
               <a href="?page=catalog" class="action-btn btn-library-browse">
                 مرور کل کاتالوگ
