@@ -55,24 +55,3 @@
   /* Container width */
   --max-width: 1240px;
 }
-
-/* Dark Mode Theme */
-[data-theme="dark"] {
-  --bg: #0b1120;
-  --surface: #1e293b;
-  --surface-alt: #0f172a;
-  --border: #334155;
-  --border-light: #1e293b;
-  
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
-  --text-inverse: #0f172a;
-
-  --primary-surface: rgba(0, 150, 136, 0.15);
-
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 20px -3px rgba(0, 0, 0, 0.5);
-  --shadow-card-hover: 0 12px 24px -4px rgba(0, 0, 0, 0.6);
-}

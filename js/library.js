@@ -350,12 +350,22 @@
             <p class="lib-card-author">${book.author}</p>
             
             <div class="lib-card-actions">
-              <a href="?book=${book.id}" class="action-btn btn-auth btn-lib-read">
+              <a href="?book=${book.id}" class="action-btn btn-auth btn-lib-read" data-book-id="${book.id}">
                 ${ICONS.bookOpen} <span>${hasSample ? 'مطالعه کتاب / نمونه' : 'مشاهده صفحه کتاب'}</span>
               </a>
             </div>
           </div>
         `;
+
+        const readBtn = item.querySelector('.btn-lib-read');
+        if (readBtn && hasSample) {
+          readBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (root.VibecheReader && root.VibecheReader.open) {
+              root.VibecheReader.open(book, readBtn);
+            }
+          });
+        }
 
         grid.appendChild(item);
       });

@@ -434,7 +434,7 @@
       const settings = safeGet(STORAGE_KEYS.READER_SETTINGS, DEFAULT_READER_SETTINGS);
       return {
         fontSize: ['small', 'medium', 'large'].includes(settings.fontSize) ? settings.fontSize : 'medium',
-        theme: ['light', 'dark'].includes(settings.theme) ? settings.theme : 'light'
+        theme: ['light', 'sepia', 'dark'].includes(settings.theme) ? settings.theme : 'light'
       };
     },
 
@@ -442,7 +442,7 @@
       const current = this.getReaderSettings();
       const updated = {
         fontSize: ['small', 'medium', 'large'].includes(newSettings.fontSize) ? newSettings.fontSize : current.fontSize,
-        theme: ['light', 'dark'].includes(newSettings.theme) ? newSettings.theme : current.theme
+        theme: ['light', 'sepia', 'dark'].includes(newSettings.theme) ? newSettings.theme : current.theme
       };
       safeSet(STORAGE_KEYS.READER_SETTINGS, updated);
       return updated;

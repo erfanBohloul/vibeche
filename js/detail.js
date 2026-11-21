@@ -208,7 +208,7 @@
     if (hasSample) {
       btnSample.innerHTML = `${ICONS.bookOpen} <span>خواندن نمونه</span>`;
       btnSample.addEventListener('click', () => {
-        openSampleReader(book);
+        openSampleReader(book, btnSample);
       });
     } else {
       btnSample.disabled = true;
@@ -428,9 +428,9 @@
   /**
    * Sample reader trigger (links to reader module or opens modal)
    */
-  function openSampleReader(book) {
+  function openSampleReader(book, triggerEl = null) {
     if (root.VibecheReader && root.VibecheReader.open) {
-      root.VibecheReader.open(book);
+      root.VibecheReader.open(book, triggerEl);
     } else {
       // In-page fallback sample modal
       showSampleFallbackModal(book);

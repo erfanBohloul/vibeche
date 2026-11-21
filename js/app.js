@@ -34,7 +34,10 @@
     carouselTimer: null,
 
     init: function () {
-      this.initTheme();
+      // Main store contract: permanently light mode, independent from reader page
+      if (typeof document !== 'undefined') {
+        document.documentElement.removeAttribute('data-theme');
+      }
       this.initHeader();
       this.initNavigation();
       this.route();
@@ -62,57 +65,6 @@
     openAuthModal: function (options) {
       if (root.VibecheAuth && root.VibecheAuth.openAuthModal) {
         root.VibecheAuth.openAuthModal(options);
-      }
-    },
-
-    /**
-     * Initializes theme (light / dark) based on stored reader settings
-     */
-    initTheme: function () {
-      if (!root.VibecheStorage) return;
-      const settings = root.VibecheStorage.getReaderSettings();
-      const theme = settings.theme || 'light';
-      document.documentElement.setAttribute('data-theme', theme);
-      this.updateThemeIcon(theme);
-    },
-
-    toggleTheme: function () {
-      if (!root.VibecheStorage) return;
-      const current = root.VibecheStorage.getReaderSettings().theme;
-      const newTheme = current === 'dark' ? 'light' : 'dark';
-      root.VibecheStorage.setReaderSettings({ theme: newTheme });
-      document.documentElement.setAttribute('data-theme', newTheme);
-      this.updateThemeIcon(newTheme);
-      if (root.VibecheComponents) {
-        root.VibecheComponents.showToast(`حالت ${newTheme === 'dark' ? 'شب (تیره)' : 'روز (روشن)'} فعال شد.`);
-      }
-    },
-
-    updateThemeIcon: function (theme) {
-      const btn = document.getElementById('btn-theme-toggle');
-      if (!btn) return;
-      if (theme === 'dark') {
-        btn.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-        `;
-        btn.setAttribute('title', 'تغییر به حالت روز');
-      } else {
-        btn.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-        `;
-        btn.setAttribute('title', 'تغییر به حالت شب');
       }
     },
 
@@ -160,12 +112,6 @@
               <span>کتابخانه من</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             </a>
-            <div class="theme-toggle-row">
-              <span>حالت شب / روز</span>
-              <button type="button" id="btn-menu-theme" class="theme-switch-btn">
-                <span>${currentTheme === 'dark' ? 'تم روشن' : 'تم تیره'}</span>
-              </button>
-            </div>
             <button type="button" id="btn-logout" class="btn-logout" style="width: 100%; text-align: right; padding: 8px 10px; font-weight: bold;">
               خروج از حساب کاربری
             </button>
@@ -174,21 +120,12 @@
 
         const pill = document.getElementById('user-profile-pill');
         const menu = document.getElementById('user-profile-menu');
-        const themeBtn = document.getElementById('btn-menu-theme');
         const logoutBtn = document.getElementById('btn-logout');
 
         if (pill && menu) {
           pill.addEventListener('click', (e) => {
             e.stopPropagation();
             menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
-          });
-        }
-
-        if (themeBtn) {
-          themeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleTheme();
-            this.updateUserArea();
           });
         }
 
@@ -296,7 +233,21 @@
       if (!main) return;
       main.innerHTML = '';
 
-      if (bookId) {
+      // Manage reader-mode body class (hides standard store header/footer during reader mode)
+      if (typeof document !== 'undefined') {
+        if (page === 'reader') {
+          document.body.classList.add('in-reader-mode');
+        } else {
+          document.body.classList.remove('in-reader-mode');
+        }
+      }
+
+      if (page === 'reader') {
+        // Dedicated Reader View (Step 7)
+        if (root.VibecheReader && root.VibecheReader.renderReaderPage) {
+          root.VibecheReader.renderReaderPage(main, params);
+        }
+      } else if (bookId) {
         // Book Details View (Step 5)
         if (root.VibecheDetail) {
           root.VibecheDetail.renderBookDetail(main, bookId);
